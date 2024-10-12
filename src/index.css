@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply antialiased;
+}
+
+.dark {
+  @apply text-white;
+}
+
+.dark input::placeholder {
+  @apply text-gray-400;
+}
