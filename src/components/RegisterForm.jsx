@@ -71,7 +71,7 @@ const RegisterForm = ({ setCurrentForm }) => {
           />
           <button
             type="button"
-            className="absolute right-3 top-8 text-gray-500 dark:text-gray-300"
+            className="absolute right-3 top-10 text-gray-500 dark:text-gray-300"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -89,7 +89,7 @@ const RegisterForm = ({ setCurrentForm }) => {
           />
           <button
             type="button"
-            className="absolute right-3 top-8 text-gray-500 dark:text-gray-300"
+            className="absolute right-3 top-10 text-gray-500 dark:text-gray-300"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >
             {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

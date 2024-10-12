@@ -3,6 +3,12 @@ import { Eye, EyeOff } from 'lucide-react';
 
 const LoginForm = ({ setCurrentForm }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState(''); // 新增
+
+  const handleUsernameChange = (e) => { // 新增
+    const value = e.target.value.replace(/[^a-zA-Z]/g, '');
+    setUsername(value);
+  };
 
   return (
     <div className="w-full max-w-md">
@@ -13,6 +19,8 @@ const LoginForm = ({ setCurrentForm }) => {
           <input
             type="text"
             id="username"
+            value={username}
+            onChange={handleUsernameChange}
             className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="Enter your username"
           />
@@ -27,7 +35,8 @@ const LoginForm = ({ setCurrentForm }) => {
           />
           <button
             type="button"
-            className="absolute right-3 top-8 text-gray-500 dark:text-gray-300"
+            // className="absolute right-3 top-8 text-gray-500 dark:text-gray-300"
+            className="absolute right-3 top-12 transform -translate-y-1/2 text-gray-500 dark:text-gray-300"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
