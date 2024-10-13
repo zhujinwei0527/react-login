@@ -21,7 +21,7 @@ const LoginForm = () => {
    * @param e 事件对象
    */
   const handleUsernameChange = (e) => {
-    const value = e.target.value.replace(/[^a-zA-Z]/g, '');
+    const value = e.target.value.replace(/[^a-z0-9]/g, '');
     setUsername(value);
   };
 

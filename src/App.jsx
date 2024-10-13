@@ -6,8 +6,8 @@ import RegisterForm from "./components/RegisterForm";
 import ResetPasswordForm from "./components/ResetPasswordForm";
 import HomePage from "./components/HomePage";
 
-import signupImage from "./assets/signup.jpg";
-import loginImage from "./assets/login.jpg";
+import loginImage from "./assets/signup.jpg";
+import signupImage from "./assets/login.jpg";
 
 export const ThemeContext = createContext();
 
@@ -18,7 +18,6 @@ export const ThemeContext = createContext();
  */
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const [currentForm, setCurrentForm] = useState("login");
 
   /**
    * 切换暗黑模式
@@ -30,21 +29,20 @@ function App() {
     setDarkMode(!darkMode);
   };
 
-  const currentImage = currentForm === "register" ? loginImage : signupImage;
-
   /**
    * 认证页面布局组件
    *
    * @param children 子组件
+   * @param imageSrc 背景图片源
    * @returns 返回一个认证页面布局组件
    */
-  const AuthLayout = ({ children }) => (
+  const AuthLayout = ({ children, imageSrc }) => (
     <div className={`min-h-screen flex ${darkMode ? "dark bg-gray-900" : "bg-gray-100"}`}>
       <div className="w-1/2 flex items-center justify-center p-12">
         <div className="w-full h-0 pb-[66.67%] relative overflow-hidden rounded-lg shadow-lg">
           <img
-            src={currentImage}
-            alt={currentForm === "register" ? "Register" : "Login/Reset"}
+            src={imageSrc}
+            alt="Authentication"
             className="absolute inset-0 w-full h-full object-contain"
           />
         </div>
@@ -76,18 +74,18 @@ function App() {
           <DarkModeToggle />
           <Routes>
             <Route path="/login" element={
-              <AuthLayout>
-                <LoginForm setCurrentForm={setCurrentForm} />
+              <AuthLayout imageSrc={loginImage}>
+                <LoginForm />
               </AuthLayout>
             } />
             <Route path="/register" element={
-              <AuthLayout>
-                <RegisterForm setCurrentForm={setCurrentForm} />
+              <AuthLayout imageSrc={signupImage}>
+                <RegisterForm />
               </AuthLayout>
             } />
             <Route path="/reset-password" element={
-              <AuthLayout>
-                <ResetPasswordForm setCurrentForm={setCurrentForm} />
+              <AuthLayout imageSrc={loginImage}>
+                <ResetPasswordForm />
               </AuthLayout>
             } />
             <Route path="/home" element={<HomePage />} />

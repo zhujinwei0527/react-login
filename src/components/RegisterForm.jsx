@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const RegisterForm = ({ setCurrentForm }) => {
+const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [username, setUsername] = useState('');
@@ -9,11 +10,23 @@ const RegisterForm = ({ setCurrentForm }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const navigate = useNavigate();
 
+  /**
+   * 处理用户名更改事件
+   *
+   * @param e 事件对象
+   */
   const handleUsernameChange = (e) => {
-    const value = e.target.value.toLowerCase().replace(/[^a-z]/g, '');
+    const value = e.target.value.replace(/[^a-z0-9]/g, '');
     setUsername(value);
   };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    setPhone(value);
+  };
+  
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -33,10 +46,16 @@ const RegisterForm = ({ setCurrentForm }) => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Add your registration logic here
+    console.log('Registration submitted');
+  };
+
   return (
     <div className="w-full max-w-md">
       <h2 className="text-3xl font-bold mb-6 text-center dark:text-white">Register</h2>
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <label htmlFor="username" className="block mb-1 font-medium dark:text-white">Username</label>
           <input
@@ -45,7 +64,8 @@ const RegisterForm = ({ setCurrentForm }) => {
             value={username}
             onChange={handleUsernameChange}
             className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="Enter lowercase letters only"
+            placeholder="Enter your username"
+            required
           />
         </div>
         <div>
@@ -54,9 +74,10 @@ const RegisterForm = ({ setCurrentForm }) => {
             type="tel"
             id="phone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={handlePhoneChange}
             className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="Enter your phone number"
+            required
           />
         </div>
         <div className="relative">
@@ -68,6 +89,7 @@ const RegisterForm = ({ setCurrentForm }) => {
             onChange={handlePasswordChange}
             className="w-full px-3 py-2 border rounded-md pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="Enter your password"
+            required
           />
           <button
             type="button"
@@ -86,6 +108,7 @@ const RegisterForm = ({ setCurrentForm }) => {
             onChange={handleConfirmPasswordChange}
             className="w-full px-3 py-2 border rounded-md pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="Confirm your password"
+            required
           />
           <button
             type="button"
@@ -105,7 +128,7 @@ const RegisterForm = ({ setCurrentForm }) => {
       </form>
       <div className="mt-4 text-center">
         <button
-          onClick={() => setCurrentForm('login')}
+          onClick={() => navigate('/login')}
           className="text-blue-500 hover:underline dark:text-blue-400"
         >
           Already have an account? Login
