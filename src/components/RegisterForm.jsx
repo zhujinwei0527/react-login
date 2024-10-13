@@ -1,37 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { register, handleApiError } from '../api/auth';
 
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [username, setUsername] = useState('');
-  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isFormValid, setIsFormValid] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  /**
-   * 处理用户名更改事件
-   *
-   * @param e 事件对象
-   */
-  const handleUsernameChange = (e) => {
-    const value = e.target.value.replace(/[^a-z0-9]/g, '');
-    setUsername(value);
-  };
-
-  const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/[^0-9]/g, '');
-    setPhone(value);
-  };
-  
+  useEffect(() => {
+    const isValid = username.trim() !== '' &&
+                    password.trim() !== '' &&
+                    confirmPassword.trim() !== '' &&
+                    password === confirmPassword;
+    setIsFormValid(isValid);
+  }, [username, password, confirmPassword]);
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     if (confirmPassword && e.target.value !== confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setPasswordError('密码不匹配');
     } else {
       setPasswordError('');
     }
@@ -40,55 +35,64 @@ const RegisterForm = () => {
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
     if (password && e.target.value !== password) {
-      setPasswordError('Passwords do not match');
+      setPasswordError('密码不匹配');
     } else {
       setPasswordError('');
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your registration logic here
-    console.log('Registration submitted');
+    if (isFormValid) {
+      setIsLoading(true);
+      try {
+        const response = await register(username, password);
+        if (response.code === 200) {
+          setMessage('注册成功');
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        } else {
+          setMessage(response.msg || '注册失败，请稍后重试');
+        }
+      } catch (error) {
+        setMessage(handleApiError(error));
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
     <div className="w-full max-w-md">
-      <h2 className="text-3xl font-bold mb-6 text-center dark:text-white">Register</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center dark:text-white">注册</h2>
+      {message && (
+        <div className={`mb-4 p-2 text-center rounded ${message.includes('成功') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          {message}
+        </div>
+      )}
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username" className="block mb-1 font-medium dark:text-white">Username</label>
+          <label htmlFor="username" className="block mb-1 font-medium dark:text-white">用户名</label>
           <input
             type="text"
             id="username"
             value={username}
-            onChange={handleUsernameChange}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="Enter your username"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="phone" className="block mb-1 font-medium dark:text-white">Phone Number</label>
-          <input
-            type="tel"
-            id="phone"
-            value={phone}
-            onChange={handlePhoneChange}
-            className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="Enter your phone number"
+            placeholder="输入您的用户名"
             required
           />
         </div>
         <div className="relative">
-          <label htmlFor="password" className="block mb-1 font-medium dark:text-white">Password</label>
+          <label htmlFor="password" className="block mb-1 font-medium dark:text-white">密码</label>
           <input
             type={showPassword ? "text" : "password"}
             id="password"
             value={password}
             onChange={handlePasswordChange}
             className="w-full px-3 py-2 border rounded-md pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="Enter your password"
+            placeholder="输入密码"
             required
           />
           <button
@@ -100,14 +104,14 @@ const RegisterForm = () => {
           </button>
         </div>
         <div className="relative">
-          <label htmlFor="confirmPassword" className="block mb-1 font-medium dark:text-white">Confirm Password</label>
+          <label htmlFor="confirmPassword" className="block mb-1 font-medium dark:text-white">确认密码</label>
           <input
             type={showConfirmPassword ? "text" : "password"}
             id="confirmPassword"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
             className="w-full px-3 py-2 border rounded-md pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="Confirm your password"
+            placeholder="确认密码"
             required
           />
           <button
@@ -121,9 +125,12 @@ const RegisterForm = () => {
         {passwordError && <p className="text-red-500">{passwordError}</p>}
         <button
           type="submit"
-          className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition duration-300"
+          className={`w-full bg-blue-500 text-white py-2 rounded-md transition duration-300 ${
+            isFormValid && !isLoading ? 'hover:bg-blue-600' : 'opacity-50 cursor-not-allowed'
+          }`}
+          disabled={!isFormValid || isLoading}
         >
-          Register
+          {isLoading ? '处理中...' : '注册'}
         </button>
       </form>
       <div className="mt-4 text-center">
@@ -131,7 +138,7 @@ const RegisterForm = () => {
           onClick={() => navigate('/login')}
           className="text-blue-500 hover:underline dark:text-blue-400"
         >
-          Already have an account? Login
+          已有账号？返回登录
         </button>
       </div>
     </div>

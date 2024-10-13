@@ -39,6 +39,40 @@ export const login = async (username, password) => {
 };
 
 /**
+ * 用户注册函数
+ *
+ * @param {string} username 用户名
+ * @param {string} password 密码
+ * @returns {Promise<Object>} 返回一个包含注册结果的Promise对象
+ * @throws {Error} 如果在注册过程中发生错误，则抛出异常
+ */
+export const register = async (username, password) => {
+  try {
+    const response = await api.post('/register', { username, password });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * 重置密码函数
+ *
+ * @param {string} username 用户名
+ * @param {string} newPassword 新密码
+ * @returns {Promise<Object>} 返回一个包含重置密码结果的Promise对象
+ * @throws {Error} 如果在重置密码过程中发生错误，则抛出异常
+ */
+export const resetPassword = async (username, newPassword) => {
+  try {
+    const response = await api.post('/resetPassword', { username, newPassword });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
  * 设置本地存储中的token
  *
  * @param {string} token - 需要存储的token值

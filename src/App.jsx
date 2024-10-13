@@ -83,7 +83,7 @@ function App() {
                 <RegisterForm />
               </AuthLayout>
             } />
-            <Route path="/reset-password" element={
+            <Route path="/resetPassword" element={
               <AuthLayout imageSrc={loginImage}>
                 <ResetPasswordForm />
               </AuthLayout>

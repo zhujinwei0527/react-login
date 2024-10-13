@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { resetPassword, handleApiError } from '../api/auth';
 
-/**
- * 将所有输入框设置为必填项（添加了 required 属性）。
- * 添加了 isFormValid 状态来跟踪表单的有效性。
- * 使用 useEffect hook 来检查表单是否有效，确保所有字段都已填写且新密码和确认密码相匹配。
- * 根据 isFormValid 状态来启用或禁用 "重置密码" 按钮。
- * 更新了按钮的样式，当表单无效时显示为禁用状态。
- * 添加了 handleSubmit 函数来处理表单提交。
- * @returns 
- */
 const ResetPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -19,10 +11,11 @@ const ResetPasswordForm = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 检查表单是否有效
     const isValid = username.trim() !== '' &&
                     password.trim() !== '' &&
                     confirmPassword.trim() !== '' &&
@@ -30,16 +23,6 @@ const ResetPasswordForm = () => {
     setIsFormValid(isValid);
   }, [username, password, confirmPassword]);
 
-  /**
-   * 处理用户名更改事件
-   *
-   * @param e 事件对象
-   */
-  const handleUsernameChange = (e) => {
-    const value = e.target.value.replace(/[^a-z0-9]/g, '');
-    setUsername(value);
-  };
-  
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
     if (confirmPassword && e.target.value !== confirmPassword) {
@@ -58,39 +41,58 @@ const ResetPasswordForm = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isFormValid) {
-      // 在这里处理密码重置逻辑
-      console.log('密码重置表单提交');
+      setIsLoading(true);
+      try {
+        const response = await resetPassword(username, password);
+        if (response.code === 200) {
+          setMessage('密码重置成功');
+          setTimeout(() => {
+            navigate('/login');
+          }, 2000);
+        } else {
+          setMessage(response.msg || '密码重置失败，请稍后重试');
+        }
+      } catch (error) {
+        setMessage(handleApiError(error));
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   return (
     <div className="w-full max-w-md">
-      <h2 className="text-3xl font-bold mb-6 text-center dark:text-white">Reset Password</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center dark:text-white">重置密码</h2>
+      {message && (
+        <div className={`mb-4 p-2 text-center rounded ${message.includes('成功') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          {message}
+        </div>
+      )}
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username" className="block mb-1 font-medium dark:text-white">username</label>
+          <label htmlFor="username" className="block mb-1 font-medium dark:text-white">用户名</label>
           <input
             type="text"
             id="username"
             value={username}
-            onChange={handleUsernameChange}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="Enter your username" 
+            placeholder="输入您的用户名"
             required
           />
         </div>
         <div className="relative">
-          <label htmlFor="newPassword" className="block mb-1 font-medium dark:text-white">new password</label>
+          <label htmlFor="newPassword" className="block mb-1 font-medium dark:text-white">新密码</label>
           <input
             type={showPassword ? "text" : "password"}
             id="newPassword"
             value={password}
             onChange={handlePasswordChange}
             className="w-full px-3 py-2 border rounded-md pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="Enter new password"
+            placeholder="输入新密码"
             required
           />
           <button
@@ -102,14 +104,14 @@ const ResetPasswordForm = () => {
           </button>
         </div>
         <div className="relative">
-          <label htmlFor="confirmNewPassword" className="block mb-1 font-medium dark:text-white">confirm new password</label>
+          <label htmlFor="confirmNewPassword" className="block mb-1 font-medium dark:text-white">确认新密码</label>
           <input
             type={showConfirmPassword ? "text" : "password"}
             id="confirmNewPassword"
             value={confirmPassword}
             onChange={handleConfirmPasswordChange}
             className="w-full px-3 py-2 border rounded-md pr-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            placeholder="Enter new password again"
+            placeholder="确认新密码"
             required
           />
           <button
@@ -124,11 +126,11 @@ const ResetPasswordForm = () => {
         <button
           type="submit"
           className={`w-full bg-blue-500 text-white py-2 rounded-md transition duration-300 ${
-            isFormValid ? 'hover:bg-blue-600' : 'opacity-50 cursor-not-allowed'
+            isFormValid && !isLoading ? 'hover:bg-blue-600' : 'opacity-50 cursor-not-allowed'
           }`}
-          disabled={!isFormValid}
+          disabled={!isFormValid || isLoading}
         >
-          Reset Password
+          {isLoading ? '处理中...' : '重置密码'}
         </button>
       </form>
       <div className="mt-4 text-center">
@@ -136,7 +138,7 @@ const ResetPasswordForm = () => {
           onClick={() => navigate('/login')}
           className="text-blue-500 hover:underline dark:text-blue-400"
         >
-          Return Login
+          返回登录
         </button>
       </div>
     </div>
