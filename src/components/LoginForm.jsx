@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { login, setToken } from '../api/auth';
+import { login, handleApiError } from '../api/auth';
 
 const LoginForm = ({ setCurrentForm }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,11 +25,15 @@ const LoginForm = ({ setCurrentForm }) => {
 
     try {
       const response = await login(username, password);
-      setToken(response.token);
-      setSuccessMessage('登录成功！');
-      // 这里可以添加后续的逻辑，比如更新全局状态或重定向
+      if (response.code === 200) {
+        // setSuccessMessage(response.msg || '登录成功');
+        setSuccessMessage('登录成功');
+        // 这里可以添加后续的逻辑，比如更新全局状态或重定向
+      } else {
+        setError(response.msg || '登录失败，请重试');
+      }
     } catch (error) {
-      setError('用户名或密码错误');
+      setError(handleApiError(error));
     }
   };
 
