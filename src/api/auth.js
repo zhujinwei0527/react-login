@@ -1,53 +1,24 @@
 import axios from 'axios';
 
-const API_URL = 'YOUR_API_BASE_URL'; // 替换为你的实际 API 基础 URL
-
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const API_URL = 'http://localhost:18888'; // 请替换为实际的 API URL
 
 export const login = async (username, password) => {
   try {
-    const response = await api.post('/login', { username, password });
+    const response = await axios.post(`${API_URL}/login`, { username, password });
     return response.data;
   } catch (error) {
-    throw error.response ? error.response.data : new Error('An error occurred during login');
+    throw error.response ? error.response.data : new Error('登录失败');
   }
 };
 
-export const register = async (username, email, password) => {
-  try {
-    const response = await api.post('/register', { username, email, password });
-    return response.data;
-  } catch (error) {
-    throw error.response ? error.response.data : new Error('An error occurred during registration');
-  }
+export const setToken = (token) => {
+  localStorage.setItem('token', token);
 };
 
-export const resetPassword = async (email) => {
-  try {
-    const response = await api.post('/reset-password', { email });
-    return response.data;
-  } catch (error) {
-    throw error.response ? error.response.data : new Error('An error occurred during password reset');
-  }
+export const getToken = () => {
+  return localStorage.getItem('token');
 };
 
-// 添加一个请求拦截器来为每个请求添加 token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-export default api;
+export const removeToken = () => {
+  localStorage.removeItem('token');
+};
