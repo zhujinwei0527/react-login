@@ -1,34 +1,57 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { login, handleApiError } from '../api/auth';
+import { useNavigate, Link } from 'react-router-dom';
 
-const LoginForm = ({ setCurrentForm }) => {
+/**
+ * 登录表单组件
+ *
+ * @returns {JSX.Element} 返回登录表单的JSX元素
+ */
+const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const navigate = useNavigate();
 
+  /**
+   * 处理用户名更改事件
+   *
+   * @param e 事件对象
+   */
   const handleUsernameChange = (e) => {
     const value = e.target.value.replace(/[^a-zA-Z]/g, '');
     setUsername(value);
   };
 
+  /**
+   * 处理密码变更的函数
+   *
+   * @param {Event} e - DOM事件对象
+   * @returns {void} 无返回值
+   *
+   * @description 当密码输入框的值发生变化时，该函数会被触发，并更新应用的状态来反映新的密码值
+   */
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
 
+  /**
+   * 提交表单并处理登录逻辑
+   *
+   * @param {Event} e - 表单提交事件对象
+   * @async
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage('');
 
     try {
       const response = await login(username, password);
       if (response.code === 200) {
-        // setSuccessMessage(response.msg || '登录成功');
-        setSuccessMessage('登录成功');
-        // 这里可以添加后续的逻辑，比如更新全局状态或重定向
+        // 登录成功，跳转到首页
+        navigate('/home');
       } else {
         setError(response.msg || '登录失败，请重试');
       }
@@ -73,7 +96,6 @@ const LoginForm = ({ setCurrentForm }) => {
           </button>
         </div>
         {error && <p className="text-red-500">{error}</p>}
-        {successMessage && <p className="text-green-500">{successMessage}</p>}
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300"
@@ -82,20 +104,14 @@ const LoginForm = ({ setCurrentForm }) => {
         </button>
       </form>
       <div className="mt-4 text-center">
-        <button
-          onClick={() => setCurrentForm('register')}
-          className="text-blue-500 hover:underline dark:text-blue-400"
-        >
+        <Link to="/register" className="text-blue-500 hover:underline dark:text-blue-400">
           Don't have an account? Register
-        </button>
+        </Link>
       </div>
       <div className="mt-2 text-center">
-        <button
-          onClick={() => setCurrentForm('reset')}
-          className="text-blue-500 hover:underline dark:text-blue-400"
-        >
+        <Link to="/reset-password" className="text-blue-500 hover:underline dark:text-blue-400">
           Forgot password?
-        </button>
+        </Link>
       </div>
     </div>
   );
