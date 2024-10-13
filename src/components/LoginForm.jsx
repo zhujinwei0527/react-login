@@ -35,7 +35,6 @@ const LoginForm = ({ setCurrentForm }) => {
           />
           <button
             type="button"
-            // className="absolute right-3 top-8 text-gray-500 dark:text-gray-300"
             className="absolute right-3 top-12 transform -translate-y-1/2 text-gray-500 dark:text-gray-300"
             onClick={() => setShowPassword(!showPassword)}
           >
